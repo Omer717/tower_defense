@@ -5,7 +5,7 @@ from path import PATH
 class Enemy:
     def __init__(self, path):
         self.path = path
-        self.speed = 1 * TILE_SIZE / FPS
+        self.speed = 5 * TILE_SIZE / FPS
         self.path_index = 0
         self.x, self.y = path[0]
 
@@ -27,6 +27,10 @@ class Enemy:
             if distance < self.speed:
                 self.path_index += 1
 
+
     def draw(self, screen):
         pygame.draw.circle(screen, (200, 50, 50), (int(self.x), int(self.y)), 10)
+
+    def is_alive(self):
+        return self.path_index < len(self.path) - 1
 
