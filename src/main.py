@@ -5,6 +5,9 @@ import pygame
 from settings import *
 from grid import Grid
 from path import Path
+from enemy import Enemy
+from helpers import tiles_to_pixel_centers
+
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -13,7 +16,8 @@ clock = pygame.time.Clock()
 grid = Grid(GRID_ROWS, GRID_COLS, TILE_SIZE)
 path = Path(PATH)
 
-enemies = []
+pixel_centers = tiles_to_pixel_centers(PATH, TILE_SIZE)
+enemies = [Enemy(pixel_centers)]  # Example enemy list
 
 def main():
     while True:
