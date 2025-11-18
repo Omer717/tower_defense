@@ -41,6 +41,7 @@ def main():
         # --- Draw ---
         screen.fill((30, 30, 30))
         grid.draw(screen)
+        player.draw(screen)
         path.draw(screen)
         
         for enemy in enemies:
