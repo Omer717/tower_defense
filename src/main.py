@@ -7,7 +7,7 @@ from grid import Grid
 from path import Path
 from enemy import Enemy
 from player import Player
-from helpers import tiles_to_pixel_centers
+from helpers import can_place_tower, tiles_to_pixel_centers
 
 pygame.init()
 
@@ -17,6 +17,7 @@ clock = pygame.time.Clock()
 player = Player("Player1")
 grid = Grid(GRID_ROWS, GRID_COLS, TILE_SIZE)
 path = Path(PATH)
+selected_tile = None
 
 enemy_path = path.pixel_path
 enemies = [Enemy(enemy_path)]  # Example enemy list
@@ -30,6 +31,9 @@ def main():
                 sys.exit()
 
         # --- Update ---
+        mouse_pos = pygame.mouse.get_pos()
+        selected_tile = (mouse_pos[0] // TILE_SIZE, mouse_pos[1] // TILE_SIZE)
+
         for enemy in enemies:
             enemy.update()
             if not enemy.is_alive():
@@ -46,6 +50,14 @@ def main():
         
         for enemy in enemies:
             enemy.draw(screen)
+
+        # --- Draw selected tile highlight ---
+        if selected_tile is not None and can_place_tower(grid, selected_tile[0], selected_tile[1], path.tile_path):
+            pygame.draw.rect(screen, (0, 255, 0),
+                             (selected_tile[0] * TILE_SIZE, selected_tile[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), 2)
+        else:
+            pygame.draw.rect(screen, (255, 0, 0),
+                             (selected_tile[0] * TILE_SIZE, selected_tile[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), 2)
 
         pygame.display.flip()
         clock.tick(FPS)
