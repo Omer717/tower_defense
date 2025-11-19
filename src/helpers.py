@@ -13,12 +13,13 @@ def can_place_tower(grid, tile_x, tile_y, path_tiles, towers=[]):
         return False
     if tile_x < 0 or tile_x >= grid.cols or tile_y < 0 or tile_y >= grid.rows:
         return False
+    
     for tower in towers:
         if tower.tile_x == tile_x and tower.tile_y == tile_y:
             return False
     return True
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 class PointerMode(StrEnum):
     SELECT = "select"

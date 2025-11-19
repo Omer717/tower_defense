@@ -9,6 +9,7 @@ from enemy import Enemy
 from player import Player
 from helpers import PointerMode, can_place_tower, tiles_to_pixel_centers
 from pointer import Pointer
+from game_state import GameState
 from tower_manager import TowerManager
 from tower import Tower
 
@@ -21,10 +22,13 @@ player = Player("Player1")
 grid = Grid(GRID_ROWS, GRID_COLS, TILE_SIZE)
 path = Path(PATH)
 
+game_state = GameState()
+
 tower_manager = TowerManager()
 
-pointer = Pointer(grid, path, tower_manager)  # Tower manager is None for now
+pointer = Pointer(grid, path, tower_manager) 
 selected_tile = None
+hovered_tower = None
 
 enemy_path = path.pixel_path
 enemies = [Enemy(enemy_path)]  # Example enemy list
@@ -34,7 +38,12 @@ def main():
         # --- Events ---
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if pointer.mode == PointerMode.PLACE_TOWER:
+                if event.button == 3:  # Right click to switch modes
+                    if pointer.mode == PointerMode.SELECT:
+                        pointer.set_mode(PointerMode.PLACE_TOWER)
+                    else:
+                        pointer.set_mode(PointerMode.SELECT)
+                elif pointer.mode == PointerMode.PLACE_TOWER:
                     tile_x, tile_y = pointer.tile_pos
                     if can_place_tower(grid, tile_x, tile_y, path.tile_path, tower_manager.towers):
                         if player.spend_money(10):
@@ -42,14 +51,17 @@ def main():
                             print(f"Placed tower at: {tile_x}, {tile_y}")
                         else :
                             print("Not enough money to place tower.")
-                if pointer.mode == PointerMode.SELECT:
+                elif pointer.mode == PointerMode.SELECT:
                     selected_tile = pointer.tile_pos
-                    print(f"Selected tile: {selected_tile}")
-                if event.button == 3:  # Right click to switch modes
-                    if pointer.mode == PointerMode.SELECT:
-                        pointer.set_mode(PointerMode.PLACE_TOWER)
+                    selected_tower = tower_manager.get_tower_at(selected_tile)
+                    if selected_tower:
+                        game_state.set_selected_tower(selected_tower)
+                        print(f"Selected tower at: {selected_tile}")
                     else:
-                        pointer.set_mode(PointerMode.SELECT)
+                        game_state.set_selected_tower(None)
+                        print("No tower at selected tile.")
+
+                
 
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -72,7 +84,7 @@ def main():
         player.draw(screen)
         path.draw(screen)
         
-        tower_manager.draw(screen)
+        tower_manager.draw(screen, game_state.selected_tower)
 
         for enemy in enemies:
             enemy.draw(screen)
