@@ -18,3 +18,5 @@ class Path:
             x, y = tile
             rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
             pygame.draw.rect(screen, COLOR_PATH, rect)
+    def is_tile_on_path(self, grid_x, grid_y):
+        return (grid_x, grid_y) in self.tile_path

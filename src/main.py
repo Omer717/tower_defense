@@ -7,7 +7,8 @@ from grid import Grid
 from path import Path
 from enemy import Enemy
 from player import Player
-from helpers import can_place_tower, tiles_to_pixel_centers
+from helpers import PointerMode, can_place_tower, tiles_to_pixel_centers
+from pointer import Pointer
 
 pygame.init()
 
@@ -17,6 +18,8 @@ clock = pygame.time.Clock()
 player = Player("Player1")
 grid = Grid(GRID_ROWS, GRID_COLS, TILE_SIZE)
 path = Path(PATH)
+
+pointer = Pointer(grid, path, None)  # Tower manager is None for now
 selected_tile = None
 
 enemy_path = path.pixel_path
@@ -26,13 +29,27 @@ def main():
     while True:
         # --- Events ---
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pointer.state == PointerMode.PLACE_TOWER:
+                    grid_x, grid_y = pointer.tile_pos
+                    if can_place_tower(grid, grid_x, grid_y, path.tile_path):
+                        # Place tower logic here
+                        print(f"Placed tower at: {grid_x}, {grid_y}")
+                if pointer.state == PointerMode.SELECT:
+                    selected_tile = pointer.tile_pos
+                    print(f"Selected tile: {selected_tile}")
+                if event.button == 3:  # Right click to switch modes
+                    if pointer.state == PointerMode.SELECT:
+                        pointer.state = PointerMode.PLACE_TOWER
+                    else:
+                        pointer.state = PointerMode.SELECT
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
         # --- Update ---
-        mouse_pos = pygame.mouse.get_pos()
-        selected_tile = (mouse_pos[0] // TILE_SIZE, mouse_pos[1] // TILE_SIZE)
+        pointer.update()
 
         for enemy in enemies:
             enemy.update()
@@ -52,13 +69,7 @@ def main():
             enemy.draw(screen)
 
         # --- Draw selected tile highlight ---
-        if selected_tile is not None and can_place_tower(grid, selected_tile[0], selected_tile[1], path.tile_path):
-            pygame.draw.rect(screen, (0, 255, 0),
-                             (selected_tile[0] * TILE_SIZE, selected_tile[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), 2)
-        else:
-            pygame.draw.rect(screen, (255, 0, 0),
-                             (selected_tile[0] * TILE_SIZE, selected_tile[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), 2)
-
+        pointer.draw(screen)
         pygame.display.flip()
         clock.tick(FPS)
 

@@ -17,3 +17,9 @@ def can_place_tower(grid, grid_x, grid_y, path_tiles, towers=[]):
         if tower.grid_x == grid_x and tower.grid_y == grid_y:
             return False
     return True
+
+from enum import Enum, StrEnum
+
+class PointerMode(StrEnum):
+    SELECT = "select"
+    PLACE_TOWER = "place_tower"
