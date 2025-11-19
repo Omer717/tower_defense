@@ -1,9 +1,11 @@
 import pygame
 
 class Tower:
-    def __init__(self, grid_x, grid_y):
-        self.grid_x = grid_x
-        self.grid_y = grid_y
+    def __init__(self, tile_x, tile_y):
+        self.tile_x = tile_x
+        self.tile_y = tile_y
+        self.pos_x = tile_x * 32
+        self.pos_y = tile_y * 32
 
     def update(self, enemies):
         # TODO: target enemy
@@ -13,5 +15,5 @@ class Tower:
         pygame.draw.rect(
             screen,
             (100, 150, 220),
-            (self.grid_x, self.grid_y, 32, 32)
+            (self.pos_x, self.pos_y, 32, 32)
         )
