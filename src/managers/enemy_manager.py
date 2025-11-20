@@ -31,7 +31,7 @@ class EnemyManager:
             if self.spawn_timer >= self.spawn_interval:
                 enemy_info = self.wave_data[self.next_enemy_index]
                 enemy = Enemy(
-                    path=self.game_state.path.pixel_path,
+                    pixel_path=self.game_state.path.pixel_path,
                     speed=enemy_info["speed"],
                     health=enemy_info["health"],
                     reward=enemy_info["reward"],
