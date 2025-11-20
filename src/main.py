@@ -75,8 +75,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game_state.enemy_manager.start_wave([
-                    {"health": 10, "speed": 50, "reward": 5, "damage": 1},
-                    {"health": 10, "speed": 50, "reward": 5, "damage": 1},
+                    {"health": 50, "speed": 50, "reward": 5, "damage": 1},
+                    {"health": 50, "speed": 50, "reward": 5, "damage": 1},
                     ])
 
             if event.type == pygame.QUIT:

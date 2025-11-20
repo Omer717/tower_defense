@@ -3,44 +3,41 @@ from settings import *
 
 class Enemy:
     def __init__(self, pixel_path, speed, health, reward, damage):
-        self.pixel_path = pixel_path
+        # Convert path points to Vector2
+        self.pixel_path = [pygame.math.Vector2(p) for p in pixel_path]
         self.speed = speed
         self.health = health
         self.reward = reward
         self.damage = damage
         self.path_index = 0
-        self.pixel_x, self.pixel_y = pixel_path[0]
+
+        # Use Vector2 for position
+        self.position = self.pixel_path[0].copy()
 
     def update(self, dt):
         if self.reached_end():
             return  # already reached the end
 
         target = self.pixel_path[self.path_index]
-        dir_x = target[0] - self.pixel_x
-        dir_y = target[1] - self.pixel_y
-        distance = (dir_x ** 2 + dir_y ** 2) ** 0.5
+        direction = target - self.position
+        distance = direction.length()
 
         if distance == 0:
             self.path_index += 1
             return
 
-        # normalize direction
-        dir_x /= distance
-        dir_y /= distance
-
-        # move
+        direction = direction.normalize()
         move_dist = self.speed * dt
-        self.pixel_x += dir_x * move_dist
-        self.pixel_y += dir_y * move_dist
+        self.position += direction * move_dist
 
-        # check if reached target point
+        # Snap to target if we overshoot
         if distance <= move_dist:
-            self.pixel_x, self.pixel_y = list(target)
+            self.position = target.copy()
             self.path_index += 1
 
-
     def draw(self, screen):
-        pygame.draw.circle(screen, (200, 50, 50), (int(self.pixel_x), int(self.pixel_y)), 10)
+        pygame.draw.circle(screen, (200, 50, 50),
+                           (int(self.position.x), int(self.position.y)), 10)
 
     def is_alive(self):
         return self.health > 0

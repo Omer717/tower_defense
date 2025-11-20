@@ -15,7 +15,7 @@ class Bullet:
             self.active = False
             return
 
-        direction = Vector2(Vector2(self.target.pixel_x, self.target.pixel_y)) - self.position
+        direction = self.target.position - self.position
         distance = direction.length()
 
         if distance <= self.speed * dt:
@@ -28,9 +28,4 @@ class Bullet:
 
 
     def draw(self, screen):
-        pygame.draw.circle(
-        screen,
-        (255, 255, 0),                      # bullet color (yellow)
-        (int(self.position.x), int(self.position.y)),  # position as integers
-        4                                   # radius in pixels
-    )
+        pygame.draw.circle(screen, (255, 255, 0), (int(self.position.x), int(self.position.y)), 4)
