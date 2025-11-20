@@ -30,6 +30,6 @@ class GameUI:
         # --- Selected Tower ---
         if self.game_state.selected_tower:
             tower = self.game_state.selected_tower
-            tower_info_text = self.font.render(f"Selected Tower: ({tower.x}, {tower.y})", True, (0, 255, 255))
+            tower_info_text = self.font.render(f"Selected Tower: ({tower.tile_x}, {tower.tile_y})", True, (0, 255, 255))
             screen.blit(tower_info_text, (x, y))
             y += self.line_height

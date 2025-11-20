@@ -38,7 +38,7 @@ def handle_tower_selection(tile, game_state: GameState):
     if tower:
         game_state.set_selected_tower(tower)
     else:
-        game_state.set_hovered_tower(None)
+        game_state.set_selected_tower(None)
 
 
 def handle_tower_placement(tile, game_state: GameState):
