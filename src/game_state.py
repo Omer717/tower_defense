@@ -2,6 +2,7 @@ from managers.enemy_manager import EnemyManager
 from events.game_event import GameEvent
 from managers.game_ui import GameUI
 from grid import Grid
+from managers.wave_manager import WaveManager
 from path import Path
 from pointer import Pointer
 from settings import GRID_COLS, GRID_ROWS, PATH, TILE_SIZE
@@ -22,7 +23,7 @@ class GameState:
 
         self.tower_manager = TowerManager(self)
         self.enemy_manager = EnemyManager(self, self.event_bus)
-
+        self.wave_manager = WaveManager(self, self.event_bus)
         self.pointer = Pointer(self)
 
         self.game_ui = GameUI(self)

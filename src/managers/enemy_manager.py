@@ -14,6 +14,8 @@ class EnemyManager:
         self.next_enemy_index = 0
         self.active_enemies = []
 
+        event_bus.subscribe(GameEvent.ENEMY_SPAWNED, self.add_enemy)
+
     def start_wave(self, wave_data, spwan_interval=1.0):
         """wave_data: list of dicts with enemy stats"""
 
@@ -24,24 +26,10 @@ class EnemyManager:
         self.active_enemies = []
 
 
-    def update_enemies(self, dt):
-        # --- Spawn new enemies ---
-        if self.next_enemy_index < len(self.wave_data):
-            self.spawn_timer += dt
-            if self.spawn_timer >= self.spawn_interval:
-                enemy_info = self.wave_data[self.next_enemy_index]
-                enemy = Enemy(
-                    pixel_path=self.game_state.path.pixel_path,
-                    speed=enemy_info["speed"],
-                    health=enemy_info["health"],
-                    reward=enemy_info["reward"],
-                    damage=enemy_info["damage"]
-                )
-                print("Add enemy")
-                self.active_enemies.append(enemy)
-                self.next_enemy_index += 1
-                self.spawn_timer = 0
+    def add_enemy(self, enemy):
+        self.active_enemies.append(enemy)
 
+    def update_enemies(self, dt):
         # --- Update all enemies ---
         for enemy in self.active_enemies[:]:
             enemy.update(dt)
