@@ -1,4 +1,4 @@
-from tower import Tower
+from entities.tower import Tower
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

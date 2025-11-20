@@ -1,4 +1,4 @@
-from enemy import Enemy
+from entities.enemy import Enemy
 from events.event_bus import EventBus
 from events.game_event import GameEvent
 

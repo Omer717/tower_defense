@@ -1,11 +1,11 @@
-from enemy_manager import EnemyManager
+from managers.enemy_manager import EnemyManager
 from events.game_event import GameEvent
-from game_ui import GameUI
+from managers.game_ui import GameUI
 from grid import Grid
 from path import Path
 from pointer import Pointer
 from settings import GRID_COLS, GRID_ROWS, PATH, TILE_SIZE
-from tower_manager import TowerManager
+from managers.tower_manager import TowerManager
 
 
 class GameState:
