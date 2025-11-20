@@ -63,6 +63,8 @@ def handle_tower_placement(tile, game_state: GameState):
 
 def main():
     while True:
+        dt = clock.tick(FPS) / 1000
+
         # --- Events ---
         game_state.pointer.update()
         for event in pygame.event.get():
@@ -70,14 +72,20 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 handle_mouse_click(event, game_state)
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_state.enemy_manager.start_wave([
+                    {"health": 10, "speed": 50, "reward": 5, "damage": 1},
+                    {"health": 10, "speed": 50, "reward": 5, "damage": 1},
+                    ])
 
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
         # --- Update ---
-        game_state.enemy_manager.update_enemies()
-        game_state.tower_manager.update_towers()
+        game_state.enemy_manager.update_enemies(dt)
+        #game_state.tower_manager.update_towers()
 
 
         # --- Draw ---
@@ -95,8 +103,6 @@ def main():
         game_state.game_ui.draw(screen)
 
         pygame.display.flip()
-        clock.tick(FPS)
-
 
 if __name__ == "__main__":
     main()

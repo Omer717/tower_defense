@@ -13,9 +13,9 @@ class TowerManager:
     def add_tower_at(self, tile):
         self.towers.append(Tower(tile[0], tile[1]))
 
-    def update_towers(self):
-        for tower in self.towers:
-            tower.update(self.game_state.enemy_manager.enemies)
+    # def update_towers(self):
+    #     for tower in self.towers:
+    #         tower.update(self.game_state.enemy_manager.enemies)
 
     def draw_towers(self, screen, selected_tower=None):
         for tower in self.towers:

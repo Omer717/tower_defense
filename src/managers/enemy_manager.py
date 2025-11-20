@@ -5,22 +5,60 @@ from events.game_event import GameEvent
 
 class EnemyManager:
     def __init__(self, game_state, event_bus: EventBus):
-        self.enemies = []
         self.event_bus = event_bus
         self.game_state = game_state
 
-    def spawn_enemy(self, path):
-        enemy = Enemy(path)
-        self.enemies.append(enemy)
+        self.wave_data = []
+        self.spawn_interval = 1.0
+        self.spawn_timer = 0.0
+        self.next_enemy_index = 0
+        self.active_enemies = []
 
-    def update_enemies(self):
-        for enemy in self.enemies:
-            enemy.update()
-            if not enemy.reached_end():
-                self.enemies.remove(enemy)
-                self.event_bus.publish(GameEvent.ENEMY_REACHED_END)
-                
+    def start_wave(self, wave_data, spwan_interval=1.0):
+        """wave_data: list of dicts with enemy stats"""
+
+        self.wave_data = wave_data
+        self.spawn_interval = spwan_interval
+        self.spawn_timer = 0
+        self.next_enemy_index = 0
+        self.active_enemies = []
+
+
+    def update_enemies(self, dt):
+        # --- Spawn new enemies ---
+        if self.next_enemy_index < len(self.wave_data):
+            self.spawn_timer += dt
+            if self.spawn_timer >= self.spawn_interval:
+                enemy_info = self.wave_data[self.next_enemy_index]
+                enemy = Enemy(
+                    path=self.game_state.path.pixel_path,
+                    speed=enemy_info["speed"],
+                    health=enemy_info["health"],
+                    reward=enemy_info["reward"],
+                    damage=enemy_info["damage"]
+                )
+                print("Add enemy")
+                self.active_enemies.append(enemy)
+                self.next_enemy_index += 1
+                self.spawn_timer = 0
+
+        # --- Update all enemies ---
+        for enemy in self.active_enemies[:]:
+            enemy.update(dt)
+
+            # Enemy reached end
+            if enemy.reached_end():
+                print("enemy reached end")
+                self.active_enemies.remove(enemy)
+                self.event_bus.publish(GameEvent.ENEMY_REACHED_END, enemy)
+                continue
+
+            # Enemy died
+            if enemy.health < 0:
+                print("enemy died")
+                self.active_enemies.remove(enemy)
+                self.event_bus.publish(GameEvent.ENEMY_KILLED, enemy)
 
     def draw_enemies(self, screen):
-        for enemy in self.enemies:
+        for enemy in self.active_enemies:
             enemy.draw(screen)
