@@ -8,18 +8,27 @@ if TYPE_CHECKING:
 class TowerManager:
     def __init__(self, game_state: "GameState"):
         self.towers = []
+        self.bullets = []
         self.game_state = game_state
 
     def add_tower_at(self, tile):
         self.towers.append(Tower(tile[0], tile[1]))
 
-    # def update_towers(self):
-    #     for tower in self.towers:
-    #         tower.update(self.game_state.enemy_manager.enemies)
+    def update_towers(self, dt):
+        for tower in self.towers:
+            tower.update(dt, self.game_state.enemy_manager.active_enemies, self.bullets)
 
+        # Update bullets
+        for bullet in self.bullets[:]:
+            bullet.update(dt)
+            if not bullet.active:
+                self.bullets.remove(bullet)
+    
     def draw_towers(self, screen, selected_tower=None):
         for tower in self.towers:
             tower.draw(screen, is_selected=(tower == selected_tower))
+        for bullet in self.bullets:
+            bullet.draw(screen)
 
     def is_tower_at(self, tile):
         for tower in self.towers:

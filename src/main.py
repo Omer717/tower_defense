@@ -85,7 +85,7 @@ def main():
 
         # --- Update ---
         game_state.enemy_manager.update_enemies(dt)
-        #game_state.tower_manager.update_towers()
+        game_state.tower_manager.update_towers(dt)
 
 
         # --- Draw ---

@@ -42,6 +42,11 @@ class Enemy:
     def draw(self, screen):
         pygame.draw.circle(screen, (200, 50, 50), (int(self.pixel_x), int(self.pixel_y)), 10)
 
+    def is_alive(self):
+        return self.health > 0
+
     def reached_end(self):
         return self.path_index >= len(self.pixel_path)
 
+    def take_damage(self, damage):
+        self.health -= damage

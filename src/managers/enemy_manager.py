@@ -54,7 +54,7 @@ class EnemyManager:
                 continue
 
             # Enemy died
-            if enemy.health < 0:
+            if enemy.health <= 0:
                 print("enemy died")
                 self.active_enemies.remove(enemy)
                 self.event_bus.publish(GameEvent.ENEMY_KILLED, enemy)
