@@ -2,95 +2,98 @@
 import sys
 import pygame
 
+from events.event_bus import EventBus
 from settings import *
-from grid import Grid
-from path import Path
-from enemy import Enemy
-from player import Player
-from helpers import PointerMode, can_place_tower, tiles_to_pixel_centers
-from pointer import Pointer
+from helpers import PointerMode
 from game_state import GameState
-from tower_manager import TowerManager
-from tower import Tower
 
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
-player = Player("Player1")
-grid = Grid(GRID_ROWS, GRID_COLS, TILE_SIZE)
-path = Path(PATH)
+event_bus = EventBus()
+game_state = GameState(event_bus)
 
-game_state = GameState()
+def handle_mouse_click(event, game_state):
+    if event.button == 3:
+        # Switch modes
+        if game_state.pointer.mode == PointerMode.SELECT:
+            game_state.pointer.set_mode(PointerMode.PLACE_TOWER)
+        else:
+            game_state.pointer.set_mode(PointerMode.SELECT)
+        return
 
-tower_manager = TowerManager()
+    tile = game_state.pointer.tile_pos
 
-pointer = Pointer(grid, path, tower_manager) 
-selected_tile = None
-hovered_tower = None
+    if game_state.pointer.mode == PointerMode.PLACE_TOWER:
+        handle_tower_placement(tile, game_state)
 
-enemy_path = path.pixel_path
-enemies = [Enemy(enemy_path)]  # Example enemy list
+    elif game_state.pointer.mode == PointerMode.SELECT:
+        handle_tower_selection(tile, game_state)
+
+def handle_tower_selection(tile, game_state: GameState):
+    tower = game_state.tower_manager.get_tower_at(tile)
+
+    if tower:
+        game_state.set_selected_tower(tower)
+    else:
+        game_state.set_hovered_tower(None)
+
+
+def handle_tower_placement(tile, game_state: GameState):
+    tile_x, tile_y = tile
+
+    print(f"{tile_x}, {tile_y}")
+    # 1. Ask the tower manager if the tile is valid
+    if not game_state.tower_manager.can_place_tower(tile):
+        print("Cannot place tower here.")
+        return
+
+    # 2. Try spending the money
+    tower_cost = 10  # Later move to a settings or tower data table
+    if not game_state.spend_money(tower_cost):
+        print("Not enough money to place tower.")
+        return
+
+    # 3. Add the tower
+    game_state.tower_manager.add_tower_at(tile)
+    print(f"Placed tower at: {tile_x}, {tile_y}")
+
 
 def main():
     while True:
         # --- Events ---
+        game_state.pointer.update()
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3:  # Right click to switch modes
-                    if pointer.mode == PointerMode.SELECT:
-                        pointer.set_mode(PointerMode.PLACE_TOWER)
-                    else:
-                        pointer.set_mode(PointerMode.SELECT)
-                elif pointer.mode == PointerMode.PLACE_TOWER:
-                    tile_x, tile_y = pointer.tile_pos
-                    if can_place_tower(grid, tile_x, tile_y, path.tile_path, tower_manager.towers):
-                        if player.spend_money(10):
-                            tower_manager.add_tower(Tower(tile_x, tile_y))
-                            print(f"Placed tower at: {tile_x}, {tile_y}")
-                        else :
-                            print("Not enough money to place tower.")
-                elif pointer.mode == PointerMode.SELECT:
-                    selected_tile = pointer.tile_pos
-                    selected_tower = tower_manager.get_tower_at(selected_tile)
-                    if selected_tower:
-                        game_state.set_selected_tower(selected_tower)
-                        print(f"Selected tower at: {selected_tile}")
-                    else:
-                        game_state.set_selected_tower(None)
-                        print("No tower at selected tile.")
 
-                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                handle_mouse_click(event, game_state)
+
 
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
         # --- Update ---
-        pointer.update()
-
-        for enemy in enemies:
-            enemy.update()
-            if not enemy.is_alive():
-                enemies.remove(enemy)
-                player.take_damage(10)
-                print(f"Player Health: {player.health}")
+        game_state.enemy_manager.update_enemies()
+        game_state.tower_manager.update_towers()
 
 
         # --- Draw ---
         screen.fill((30, 30, 30))
-        grid.draw(screen)
-        player.draw(screen)
-        path.draw(screen)
-        
-        tower_manager.draw(screen, game_state.selected_tower)
 
-        for enemy in enemies:
-            enemy.draw(screen)
+        game_state.grid.draw(screen)
+        game_state.path.draw(screen)
+        
+        game_state.tower_manager.draw_towers(screen, game_state.selected_tower)
+        game_state.enemy_manager.draw_enemies(screen)
 
         # --- Draw selected tile highlight ---
-        pointer.draw(screen)
+        game_state.pointer.draw(screen)
+
+        game_state.game_ui.draw(screen)
+
         pygame.display.flip()
         clock.tick(FPS)
 

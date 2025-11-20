@@ -1,6 +1,5 @@
 import pygame
 from settings import *
-from path import PATH
 
 class Enemy:
     def __init__(self, path):
@@ -31,6 +30,6 @@ class Enemy:
     def draw(self, screen):
         pygame.draw.circle(screen, (200, 50, 50), (int(self.x), int(self.y)), 10)
 
-    def is_alive(self):
+    def reached_end(self):
         return self.path_index < len(self.path) - 1
 

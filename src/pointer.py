@@ -4,10 +4,10 @@ from settings import TILE_SIZE
 
 
 class Pointer:
-    def __init__(self, grid, path, tower_manager):
-        self.grid = grid
-        self.path = path
-        self.tower_manager = tower_manager
+    def __init__(self, game_state):
+        self.grid = game_state.grid
+        self.path = game_state.path
+        self.game_state = game_state
 
         self.mouse_pos = (0, 0)
         self.tile_pos = (0, 0)
@@ -21,7 +21,7 @@ class Pointer:
         color = (255, 255, 255)
         if self.mode == PointerMode.PLACE_TOWER:
             color = (255, 0, 0)
-            if can_place_tower(self.grid, self.tile_pos[0], self.tile_pos[1], self.path.tile_path, self.tower_manager.towers):
+            if can_place_tower(self.grid, self.tile_pos[0], self.tile_pos[1], self.path.tile_path, self.game_state.tower_manager.towers):
                 color = (0, 255, 0)
 
         if self.mode == PointerMode.SELECT:
