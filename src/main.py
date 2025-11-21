@@ -3,6 +3,7 @@ import sys
 import pygame
 
 from events.event_bus import EventBus
+from events.screen_state import ScreenState
 from settings import *
 from helpers import PointerMode
 from game_state import GameState
@@ -14,6 +15,7 @@ clock = pygame.time.Clock()
 
 event_bus = EventBus()
 game_state = GameState(event_bus)
+
 
 def handle_mouse_click(event, game_state):
     if event.button == 3:
@@ -31,6 +33,7 @@ def handle_mouse_click(event, game_state):
 
     elif game_state.pointer.mode == PointerMode.SELECT:
         handle_tower_selection(tile, game_state)
+
 
 def handle_tower_selection(tile, game_state: GameState):
     tower = game_state.tower_manager.get_tower_at(tile)
@@ -61,46 +64,55 @@ def handle_tower_placement(tile, game_state: GameState):
     print(f"Placed tower at: {tile_x}, {tile_y}")
 
 
+def handle_game(dt):
+    # --- Update ---
+    game_state.wave_manager.update_wave(dt)
+    game_state.enemy_manager.update_enemies(dt)
+    game_state.tower_manager.update_towers(dt)
+
+    # --- Draw ---
+    screen.fill((30, 30, 30))
+
+    game_state.grid.draw(screen)
+    game_state.path.draw(screen)
+
+    game_state.tower_manager.draw_towers(screen, game_state.selected_tower)
+    game_state.enemy_manager.draw_enemies(screen)
+
+    # --- Draw selected tile highlight ---
+    game_state.pointer.draw(screen)
+
+    game_state.game_ui.draw(screen)
+
+
 def main():
     while True:
         dt = clock.tick(FPS) / 1000
 
         # --- Events ---
-        game_state.pointer.update()
+        if game_state.current_state == ScreenState.GAME_RUNNING:
+            game_state.pointer.update()
         for event in pygame.event.get():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 handle_mouse_click(event, game_state)
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if game_state.current_state == ScreenState.GAME_RUNNING and event.key == pygame.K_SPACE:
                     game_state.wave_manager.next_wave()
 
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        # --- Update ---
-        game_state.wave_manager.update_wave(dt)
-        game_state.enemy_manager.update_enemies(dt)
-        game_state.tower_manager.update_towers(dt)
+        if game_state.current_state == ScreenState.MAIN_MENU:
+            screen.fill((255, 0, 0))
 
-
-        # --- Draw ---
-        screen.fill((30, 30, 30))
-
-        game_state.grid.draw(screen)
-        game_state.path.draw(screen)
-        
-        game_state.tower_manager.draw_towers(screen, game_state.selected_tower)
-        game_state.enemy_manager.draw_enemies(screen)
-
-        # --- Draw selected tile highlight ---
-        game_state.pointer.draw(screen)
-
-        game_state.game_ui.draw(screen)
+        elif game_state.current_state == ScreenState.GAME_RUNNING:
+            handle_game(dt)
 
         pygame.display.flip()
+
 
 if __name__ == "__main__":
     main()

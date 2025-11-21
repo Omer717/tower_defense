@@ -1,3 +1,4 @@
+from events.screen_state import ScreenState
 from managers.enemy_manager import EnemyManager
 from events.game_event import GameEvent
 from managers.game_ui import GameUI
@@ -12,6 +13,8 @@ from managers.tower_manager import TowerManager
 class GameState:
     def __init__(self, event_bus):
         self.event_bus = event_bus
+
+        self.current_state = ScreenState.MAIN_MENU
 
         self.health = 100
         self.money = 50
@@ -70,3 +73,6 @@ class GameState:
 
     def on_wave_started(self, wave_number):
         self.wave = wave_number
+
+    def set_screen_state(self, screen_state: ScreenState):
+        self.current_state = screen_state
