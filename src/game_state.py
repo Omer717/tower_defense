@@ -17,7 +17,6 @@ class GameState:
         self.money = 50
         self.wave = 1
 
-
         self.grid = Grid(GRID_ROWS, GRID_COLS, TILE_SIZE)
         self.path = Path(PATH)
 
@@ -33,8 +32,9 @@ class GameState:
 
         # Subscribe to events
         event_bus.subscribe(GameEvent.ENEMY_KILLED, self.on_enemy_killed)
-        event_bus.subscribe(GameEvent.ENEMY_REACHED_END, self.on_enemy_reached_end)
-
+        event_bus.subscribe(GameEvent.ENEMY_REACHED_END,
+                            self.on_enemy_reached_end)
+        event_bus.subscribe(GameEvent.WAVE_STARTED, self.on_wave_started)
 
     def on_enemy_killed(self, enemy):
         self.earn_money(enemy.reward)
@@ -49,11 +49,11 @@ class GameState:
         self.selected_tower = tower
 
     def set_selected_tile(self, tile):
-        self.selected_tile = tile 
+        self.selected_tile = tile
 
     def is_alive(self):
         return self.health > 0
-    
+
     def take_damage(self, amount):
         self.health -= amount
         if self.health < 0:
@@ -67,3 +67,6 @@ class GameState:
             self.money -= amount
             return True
         return False
+
+    def on_wave_started(self, wave_number):
+        self.wave = wave_number

@@ -42,6 +42,8 @@ class WaveManager:
                 enemy = EnemyFactory.create(enemy_type, self.game_state.path.pixel_path)
                 self.enemies_in_wave.append(enemy)
 
+        self.event_bus.publish(GameEvent.WAVE_STARTED, self.active_wave + 1)
+
     def update_wave(self, dt):
         if self.next_enemy_index < len(self.enemies_in_wave):
             self.spawn_timer += dt
