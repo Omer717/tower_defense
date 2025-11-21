@@ -27,9 +27,11 @@ class WaveManager:
 
         # get current wave definition
         wave = self.wave_defenitions[self.active_wave]
-
+        print(wave)
         # reset list
         self.enemies_in_wave = []
+        self.spawn_timer = 0
+        self.next_enemy_index = 0
 
         # spawn enemies
         for enemy_type, enemy_count in wave:
