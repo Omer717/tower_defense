@@ -1,6 +1,7 @@
 import sys
 import pygame
 
+from events.screen_events import ScreenEvents
 from events.screen_state import ScreenState
 from helpers import draw_glow_text
 from settings import GAME_FONT_NAME, SCREEN_HEIGHT, SCREEN_WIDTH
@@ -8,8 +9,9 @@ from ui.button import Button
 
 
 class MainMenuScreen:
-    def __init__(self, game_state):
+    def __init__(self, game_state, event_bus):
         self.game_state = game_state
+        self.event_bus = event_bus
 
         button_font = pygame.font.Font(GAME_FONT_NAME, 18)
         self.buttons = [
@@ -28,7 +30,8 @@ class MainMenuScreen:
         ]
 
     def start_game(self):
-        self.game_state.set_screen_state(ScreenState.GAME_RUNNING)
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+        self.event_bus.publish(ScreenEvents.START_GAME)
 
     def quit_game(self):
         pygame.quit()

@@ -1,3 +1,4 @@
+from events.screen_events import ScreenEvents
 from events.screen_state import ScreenState
 from managers.enemy_manager import EnemyManager
 from events.game_event import GameEvent
@@ -34,6 +35,9 @@ class GameState:
         self.selected_tile = None
 
         # Subscribe to events
+        event_bus.subscribe(ScreenEvents.START_GAME, lambda _: self.set_screen_state(
+            ScreenState.GAME_RUNNING))
+
         event_bus.subscribe(GameEvent.ENEMY_KILLED, self.on_enemy_killed)
         event_bus.subscribe(GameEvent.ENEMY_REACHED_END,
                             self.on_enemy_reached_end)

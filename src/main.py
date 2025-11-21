@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 event_bus = EventBus()
 
 game_state = GameState(event_bus)
-main_menu_screen = MainMenuScreen(game_state)
+main_menu_screen = MainMenuScreen(game_state, event_bus)
 
 
 def handle_mouse_click(event, game_state):
