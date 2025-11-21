@@ -4,6 +4,7 @@ import pygame
 
 from events.event_bus import EventBus
 from events.screen_state import ScreenState
+from screens.main_menu_screen import MainMenuScreen
 from settings import *
 from helpers import PointerMode
 from game_state import GameState
@@ -14,7 +15,9 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
 event_bus = EventBus()
+
 game_state = GameState(event_bus)
+main_menu_screen = MainMenuScreen(game_state)
 
 
 def handle_mouse_click(event, game_state):
@@ -85,31 +88,33 @@ def handle_game(dt):
     game_state.game_ui.draw(screen)
 
 
+def handle_game_events():
+    for event in pygame.event.get():
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            handle_mouse_click(event, game_state)
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                game_state.wave_manager.next_wave()
+
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+
 def main():
     while True:
         dt = clock.tick(FPS) / 1000
 
-        # --- Events ---
         if game_state.current_state == ScreenState.GAME_RUNNING:
             game_state.pointer.update()
-        for event in pygame.event.get():
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                handle_mouse_click(event, game_state)
-
-            if event.type == pygame.KEYDOWN:
-                if game_state.current_state == ScreenState.GAME_RUNNING and event.key == pygame.K_SPACE:
-                    game_state.wave_manager.next_wave()
-
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        if game_state.current_state == ScreenState.MAIN_MENU:
-            screen.fill((255, 0, 0))
-
-        elif game_state.current_state == ScreenState.GAME_RUNNING:
+            handle_game_events()
             handle_game(dt)
+
+        elif game_state.current_state == ScreenState.MAIN_MENU:
+            main_menu_screen.update(pygame.event.get())
+            main_menu_screen.draw(screen)
 
         pygame.display.flip()
 

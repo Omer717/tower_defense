@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 
+
 class Grid:
     def __init__(self, rows, cols, tile_size):
         self.rows = rows
