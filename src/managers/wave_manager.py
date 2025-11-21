@@ -21,6 +21,8 @@ class WaveManager:
         self.spawn_interval = 1.0
         self.spawn_timer = 0
 
+        self.wave_complete_handled = False
+
     def next_wave(self):
         # increment wave index
         self.active_wave += 1
@@ -32,6 +34,7 @@ class WaveManager:
         self.enemies_in_wave = []
         self.spawn_timer = 0
         self.next_enemy_index = 0
+        self.wave_complete_handled = False
 
         # spawn enemies
         for enemy_type, enemy_count in wave:
@@ -47,12 +50,18 @@ class WaveManager:
                 self.event_bus.publish(GameEvent.ENEMY_SPAWNED, enemy)
                 self.next_enemy_index += 1
                 self.spawn_timer = 0
+        elif self.is_wave_over() and not self.wave_complete_handled:
+            print("Wave completed")
+            self.wave_complete_handled = True
+            self.event_bus.publish(GameEvent.WAVE_COMPLETED, self.active_wave + 1)
 
 
     def generate_waves(self, num_of_waves):        
         for i in range(num_of_waves):
             self.wave_defenitions.append(WaveManager.generate_wave_definition(i))
 
+    def is_wave_over(self):
+        return self.active_wave != -1 and self.next_enemy_index <= len(self.enemies_in_wave) and not self.game_state.enemy_manager.active_enemies
 
     @staticmethod
     def generate_wave_definition(wave_number: int):
